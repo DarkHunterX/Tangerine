@@ -29,9 +29,9 @@ public class BorderExAddon
     }
 
     #region Variable
-    public static List<Sprite> PreLoadSprite = new List<Sprite>();
-
-    public enum CardPart
+    private static List<Sprite> PreLoadSprite = new List<Sprite>();
+    private static int _rarity = 3;
+    private enum CardPart
     {
         Background_SS = 0,
         Frame_SS,
@@ -81,7 +81,9 @@ public class BorderExAddon
             {
                 EXP_TABLE cardExpTable = OrangeTableHelper.Instance.GetCardExpTable(info.Exp);
                 CARD_TABLE tCardTable = OrangeDataManager.Instance.CARD_TABLE_DICT[info.CardID];
-                LoadSpriteFromBundle(__instance, tCardTable.n_RARITY);
+                _rarity = tCardTable.n_RARITY;
+
+                LoadSpriteFromBundle(__instance);
                 __instance.LevelText.text = cardExpTable.n_ID.ToString();
                 if (!__instance.MiddleVer)
                 {
@@ -89,7 +91,7 @@ public class BorderExAddon
                     __instance.NumberText.text = tCardTable.n_ID.ToString();
                 }
                 __instance.LockImage.gameObject.SetActive(info.Protected == 1);
-                __instance.SetRarity(tCardTable.n_RARITY);
+                __instance.SetRarity(_rarity);
                 __instance.SetColorType(tCardTable.n_TYPE);
                 __instance.SetStar((int)info.Star);
                 if (__instance.FavoriteImage != null)
@@ -143,7 +145,7 @@ public class BorderExAddon
     #endregion
 
     #region Utility
-    private static void LoadSpriteFromBundle(CardBase __instance, int Rarity)
+    private static void LoadSpriteFromBundle(CardBase __instance)
     {
         if (PreLoadSprite.Count > 0)
         {
@@ -163,7 +165,7 @@ public class BorderExAddon
             if (gc)
             {
                 PreLoadSprite.Clear();
-                LoadSpriteFromBundle(__instance, Rarity);
+                LoadSpriteFromBundle(__instance);
             }
             else
                 AddFramesAndBackground(__instance, PreLoadSprite);
@@ -224,46 +226,46 @@ public class BorderExAddon
         int id = 0;
         try
         {
-            //D Rank
+            // D Rank
             id = __instance.FrameRoots[0].gameObject.transform.GetSiblingIndex();
             lstFrame.Add(CloneFrameBackGroundObject(__instance, id, __instance.FrameRoots[0].gameObject, lstSprite[(int)CardPart.Frame_D], "D_Frame"));
 
             id = __instance.BackgroundRoots[0].gameObject.transform.GetSiblingIndex();
             lstBG.Add(CloneFrameBackGroundObject(__instance, id, __instance.BackgroundRoots[0].gameObject, lstSprite[(int)CardPart.Background_D], "D_Background"));
 
-            //C Rank
+            // C Rank
             id = __instance.FrameRoots[0].gameObject.transform.GetSiblingIndex();
             lstFrame.Add(CloneFrameBackGroundObject(__instance, id, __instance.FrameRoots[0].gameObject, lstSprite[(int)CardPart.Frame_C], "C_Frame"));
 
             id = __instance.BackgroundRoots[0].gameObject.transform.GetSiblingIndex();
             lstBG.Add(CloneFrameBackGroundObject(__instance, id, __instance.BackgroundRoots[0].gameObject, lstSprite[(int)CardPart.Background_C], "C_Background"));
 
-            //B Rank
+            // B Rank
             __instance.FrameRoots[2].transform.name = "B_Frame";
             __instance.BackgroundRoots[2].transform.name = "B_Background";
             lstFrame.Add(__instance.FrameRoots[2]);
             lstBG.Add(__instance.BackgroundRoots[2]);
 
-            //A Rank
+            // A Rank
             __instance.FrameRoots[3].transform.name = "A_Frame";
             __instance.BackgroundRoots[3].transform.name = "A_Background";
             lstFrame.Add(__instance.FrameRoots[3]);
             lstBG.Add(__instance.BackgroundRoots[3]);
 
-            //S Rank
+            // S Rank
             __instance.FrameRoots[4].transform.name = "S_Frame";
             __instance.BackgroundRoots[4].transform.name = "S_Background";
             lstFrame.Add(__instance.FrameRoots[4]);
             lstBG.Add(__instance.BackgroundRoots[4]);
 
-            //SS Rank
+            // SS Rank
             id = __instance.FrameRoots[4].gameObject.transform.GetSiblingIndex() + 1;
             lstFrame.Add(CloneFrameBackGroundObject(__instance, id, __instance.FrameRoots[4].gameObject, lstSprite[(int)CardPart.Frame_SS], "SS_Frame"));
 
             id = __instance.BackgroundRoots[4].gameObject.transform.GetSiblingIndex() + 1;
             lstBG.Add(CloneFrameBackGroundObject(__instance, id, __instance.BackgroundRoots[4].gameObject, lstSprite[(int)CardPart.Background_SS], "SS_Background"));
 
-            //Remove leftover Rarity C and D
+            // remove leftover Rarity C and D
             Transform[] ts = __instance.transform.GetComponentsInChildren<Transform>();
             if (ts != null)
             {
@@ -272,11 +274,14 @@ public class BorderExAddon
                         GameObject.Destroy(t.gameObject);
             }
 
-            //Update Array
+            // update array
             Image[] aFrame = lstFrame.ToArray();
             Image[] aBackground = lstBG.ToArray();
             __instance.FrameRoots = new Il2CppReferenceArray<Image>(aFrame);
             __instance.BackgroundRoots = new Il2CppReferenceArray<Image>(aBackground);
+
+            // update rarity
+            __instance.SetRarity(_rarity);
         }
         catch (Exception)
         {
