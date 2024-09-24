@@ -51,7 +51,8 @@ namespace Tangerine.Patchers
         public void AddChargeFxData(ChargeData chargeFx, string[] chargeListEX)
         {
             ChargeFxDatas.Set(_modGuid, chargeFx.sCharacterStr, chargeFx);
-            ChargeFxDatasEX.Add(chargeFx.sCharacterStr, chargeListEX);
+            if (chargeListEX != null)
+                ChargeFxDatasEX[chargeFx.sCharacterStr] = chargeListEX;
         }
 
         /// <summary>

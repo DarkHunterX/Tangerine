@@ -81,9 +81,10 @@ namespace Tangerine.Manager.Loaders
             {
                 for (int i = 0; i < chargeList.Length && i < chargeEX.Length; i++)
                     chargeEX[i] = chargeList[i];
+                return (chargeData, chargeEX);
             }
-
-            return (chargeData, chargeEX);
+            else
+                return (chargeData, null);
         }
     }
 }
