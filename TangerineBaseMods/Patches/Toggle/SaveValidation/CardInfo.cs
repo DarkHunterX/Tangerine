@@ -46,7 +46,7 @@ internal static class CardInfo
     internal static void Remove()
     {
         foreach (var card in card_mods)
-            CardService.Instance._dicCard.Remove(card.CardID);
+            CardService.Instance._dicCard.Remove(card.CardSeqID);
 
         CharacterCardSlotToDict();
         foreach (var card in characterCard_mods)
@@ -57,7 +57,7 @@ internal static class CardInfo
     internal static void Restore()
     {
         foreach (var card in card_mods)
-            CardService.Instance._dicCard.Add(card.CardID, card);
+            CardService.Instance._dicCard.Add(card.CardSeqID, card);
         foreach (var card in characterCard_mods)
             CardService.Instance._listCharacterCardSlot.Add(card);
     }

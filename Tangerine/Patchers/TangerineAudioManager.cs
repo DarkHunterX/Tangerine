@@ -2,6 +2,7 @@
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using Tangerine.Utils;
 
 namespace Tangerine.Patchers
 {
@@ -19,14 +20,15 @@ namespace Tangerine.Patchers
         {
             if (s_acb != null && s_acb != string.Empty && !AudioManager.Instance.orangePool.ContainsKey(s_acb))
             {
-                Plugin.Log.LogWarning($"ACB is not loaded: {s_acb}");
+                LogMessage.LogWarning($"ACB is not loaded: {s_acb}", LogMessage.CriwareAudio);
                 if (!_acbIsLoading.ContainsKey(s_acb))
                 {
-                    Plugin.Log.LogInfo($"Preloading ACB: {s_acb}");
+                    LogMessage.LogInfo($"Preloading ACB: {s_acb}", LogMessage.CriwareAudio);
+                    
                     _acbIsLoading[s_acb] = true;
                     AudioManager.Instance.PreloadAtomSource(s_acb, (Callback)new Action(() =>
                     {
-                        Plugin.Log.LogInfo($"Preloading finished for ACB: {s_acb}");
+                        LogMessage.LogInfo($"Preloading finished for ACB: {s_acb}", LogMessage.CriwareAudio);
 
                         lock (_acbIsLoading)
                         {
@@ -35,7 +37,7 @@ namespace Tangerine.Patchers
                     }));
                 }
 
-                Plugin.Log.LogInfo($"Waiting for ACB {s_acb} to be loaded...");
+                LogMessage.LogInfo($"Waiting for ACB {s_acb} to be loaded...", LogMessage.CriwareAudio);
 
                 // TODO: lock?
                 while (_acbIsLoading[s_acb])
@@ -43,7 +45,7 @@ namespace Tangerine.Patchers
                     // Wait
                 }
 
-                Plugin.Log.LogMessage($"Finished waiting for ACB {s_acb}");
+                LogMessage.LogMsg($"Finished waiting for ACB {s_acb}", LogMessage.CriwareAudio);
                 _acbIsLoading.Remove(s_acb);
             }
         }

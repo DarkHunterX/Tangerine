@@ -114,6 +114,13 @@ internal class SaveValidation
         RemoveModData();
     }
 
+    // hooking this allows dupe card Seq ID error to be handled by the game without it choking
+    // the error will be printed to console window and dupe card will be discarded
+    [HarmonyPostfix, HarmonyPatch(typeof(CardService), nameof(CardService.Load))]
+    private static void CatchCardError()
+    {
+    }
+
     [HarmonyPostfix, HarmonyPatch(typeof(StandaloneConsoleStorage), nameof(StandaloneConsoleStorage.LoadGame))]
     private static void ValidateClientSaveInfo(StandaloneConsoleStorage __instance)
     {
