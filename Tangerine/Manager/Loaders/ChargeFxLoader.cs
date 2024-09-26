@@ -75,12 +75,13 @@ namespace Tangerine.Manager.Loaders
                 nUpdateInAdvanceLV3FX2 = node["nUpdateInAdvanceLV3FX2"].Deserialize<int>()
             };
 
-            var chargeEX = new string[3];
+            var chargeEX = new string[4];
             var chargeList = node["sSkillEX"]?.Deserialize<string>().Split(',');
             if (chargeList != null)
             {
+                chargeEX[0] = chargeData.sCharacterStr;
                 for (int i = 0; i < chargeList.Length && i < chargeEX.Length; i++)
-                    chargeEX[i] = chargeList[i];
+                    chargeEX[i + 1] = chargeList[i];
                 return (chargeData, chargeEX);
             }
             else

@@ -180,7 +180,7 @@ namespace Tangerine.Patchers
             }
 
             if (ChargeFxDatasEX.TryGetValue(sCharacterID, out string[] chargeEX))
-                sCharacterID = chargeEX[_SetPBP.EnhanceEXIndex[0] - 1];
+                sCharacterID = chargeEX[_SetPBP.EnhanceEXIndex[0]];
 
             // run original code
             return true;
