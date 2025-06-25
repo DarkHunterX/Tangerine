@@ -14,14 +14,7 @@ internal static class DiscordInvite
 
     private static void OnClickBtnDiscordInvite()
     {
-        UIManager.Instance.LoadResourceUI<CommonUI>("UI_CommonMsg", new Action<CommonUI>((CommonUI ui) =>
-        {
-            ui.OpenSE = SystemSE.CRI_SYSTEMSE_SYS_WINDOW_OP;
-            ui.CloseSE = SystemSE.CRI_SYSTEMSE_SYS_WINDOW_CL;
-            ui.YesSE = SystemSE.CRI_SYSTEMSE_SYS_OK17;
-
-            ui.SetupConfirmByKey("COMMON_TIP", "MESSAGE_DISCORD_INVITE", "COMMON_OK", new Action(() => {} ));
-        }), true, false);
+        Application.OpenURL("https://discord.gg/5DRhJh9wRq");
     }
 
     [HarmonyPostfix, HarmonyPatch(typeof(TitleNewUI), nameof(TitleNewUI.Awake))]

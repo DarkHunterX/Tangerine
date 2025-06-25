@@ -6,6 +6,8 @@ using UnityEngine.UI;
 using Tangerine.Manager.Mod;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using TangerineBaseMods.Config;
+using System.Linq;
 
 namespace TangerineBaseMods;
 
@@ -118,14 +120,14 @@ public class CharacterIntroViewer
 
     private static void OnHotKeyPressed()
     {
-        if (Input.GetKeyDown(KeyCode.T))
+        if (Input.GetKeyDown(Configuration.NextBgKey.Value))
         {
             bgIndex++;
             if (bgIndex == bgGameObj.Count) bgIndex = 0;
             UpdateBackground();
             AudioManager.Instance.PlaySystemSE(SystemSE.CRI_SYSTEMSE_SYS_CURSOR01);
         }
-        else if (Input.GetKeyDown(KeyCode.Y))
+        else if (Input.GetKeyDown(Configuration.PreviousBgKey.Value))
         {
             bgIndex--;
             if (bgIndex < 0) bgIndex = bgGameObj.Count - 1;
@@ -133,7 +135,7 @@ public class CharacterIntroViewer
             AudioManager.Instance.PlaySystemSE(SystemSE.CRI_SYSTEMSE_SYS_CURSOR01);
         }
 
-        if (Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(Configuration.RestartAnimKey.Value))
         {
             ui.textureObj.modelName = "p_Dummy";
             ui.textureObj.AssignNewRender(ui.characterTable, null, ui.m_skinTable, new Vector3(0f, -1.0f, 5.5f), ui.tModelImg, 0);
@@ -191,7 +193,7 @@ public class CharacterIntroViewer
 
             // get background component
             Transform[] componentsInChildren = ui.gameObject.transform.parent.GetComponentsInChildren<Transform>(true);
-            var uiBG = OrangeBattleUtility.FindChildRecursive(componentsInChildren, "Bg_CharacterMenu(Clone)", true);
+            var uiBG = OrangeBattleUtility.FindAllChildRecursive(componentsInChildren, "Bg_CharacterMenu(Clone)", true).Last();
             backgroundImg = uiBG.GetComponent<Image>();
 
             UpdateBackground();

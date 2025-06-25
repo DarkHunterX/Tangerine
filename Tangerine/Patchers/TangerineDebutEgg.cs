@@ -13,8 +13,6 @@ namespace Tangerine.Patchers
     /// </summary>
     public class TangerineDebutEgg
     {
-        private static Harmony _harmony;
-
         internal static readonly Dictionary<int, EggInfo> _dictDebutEgg = new();
         internal static readonly ModDictionary<int, EggInfo> DebutEgg = new();
 
@@ -39,8 +37,7 @@ namespace Tangerine.Patchers
 
         internal static void InitializeHarmony(Harmony harmony)
         {
-            _harmony = harmony;
-            _harmony.PatchAll(typeof(TangerineDebutEgg));
+            harmony.PatchAll(typeof(TangerineDebutEgg));
         }
 
         /// <summary>

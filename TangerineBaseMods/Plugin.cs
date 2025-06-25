@@ -1,12 +1,14 @@
+using BepInEx;
+using BepInEx.Configuration;
+using BepInEx.Logging;
+using HarmonyLib;
 using System;
 using System.IO;
 using System.Text.Json.Nodes;
-using BepInEx;
-using BepInEx.Logging;
-using HarmonyLib;
 using Tangerine.Manager.Mod;
 using TangerineBaseMods.Patches;
 using TangerineBaseMods.Patches.Toggle;
+using TangerineBaseMods.Config;
 
 namespace TangerineBaseMods;
 
@@ -19,6 +21,7 @@ public class Plugin : TangerinePlugin
     private static TangerineMod _tangerine = null;
     private static Harmony _harmony;
     internal static new ManualLogSource Log;
+    internal static new ConfigFile Config;
 
     internal static readonly string ModsDir = Path.Combine(Paths.BepInExRootPath, "mods");
     internal static readonly string PluginModDir = Path.Combine(ModsDir, MyPluginInfo.PLUGIN_GUID);
@@ -32,10 +35,13 @@ public class Plugin : TangerinePlugin
 
         // Plugin startup logic
         Plugin.Log = base.Log;
+        Plugin.Config = base.Config;
         Log.LogInfo($"Tangerine plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
 
         try
         {
+            Configuration.Initialize();
+
             _harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
             var node = JsonNode.Parse(File.ReadAllText(Path.Combine(PluginModDir, JsonFile)));
 
@@ -43,8 +49,8 @@ public class Plugin : TangerinePlugin
             CharacterPassives.InitializeHarmony(_tangerine, _harmony, node);
             CardLoadout.InitializeHarmony(_tangerine, _harmony, node);
             DNA.InitializeHarmony(_tangerine, _harmony, node);
-            EventSkip.InitializeHarmony(_tangerine, _harmony, node);
-            StorySkip.InitializeHarmony(_tangerine, _harmony, node);
+            EventSkip.InitializeHarmony(_tangerine, _harmony);
+            StorySkip.InitializeHarmony(_tangerine, _harmony);
             SaveValidation.InitializeHarmony(_harmony, node);
 
             // Aoki plugins
@@ -55,12 +61,12 @@ public class Plugin : TangerinePlugin
             DualGunFix.InitializeHarmony(_tangerine, _harmony, node);
 
             // hard patches
-            HometopAnimationFix.InitializeHarmony(_harmony);
             CheatEngineFix.InitializeHarmony(_harmony);
             ChipIdRangeFix.InitializeHarmony(_harmony);
             ExpandedShopTabs.InitializeHarmony(_harmony);
             DiscordInvite.InitializeHarmony(_harmony);
-            IntroSkip.InitializeHarmony(_harmony, node);
+            GoUIMenuFixes.InitializeHarmony(_harmony);
+            IntroSkip.InitializeHarmony(_harmony);
         }
         catch (Exception e)
         {

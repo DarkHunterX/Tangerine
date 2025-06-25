@@ -39,7 +39,7 @@ namespace Tangerine.Manager.Loaders
                         var tableType = Type.GetType(Assembly.CreateQualifiedName(dataProviderAssembly.GetName().Name, typeName));
                         if (tableType == null)
                         {
-                            Plugin.Log.LogError($"Unknown table name {Path.GetFileNameWithoutExtension(tableFile)} for mod \"{modPath}\"");
+                            Plugin.Log.LogWarning($"Unknown table name {Path.GetFileNameWithoutExtension(tableFile)} for mod \"{modPath}\"");
                             continue;
                         }
 

@@ -46,6 +46,7 @@ public class Plugin : BasePlugin
         TangerineDebutEgg.InitializeHarmony(_harmony);
         TangerineChargeFx.InitializeHarmony(_harmony);
         TangerineAudioManager.InitializeHarmony(_harmony);
+        TangerineDelayedPlugin.InitializeHarmony(_harmony);
 
         // Start loading mods
         ModManager.Initialize(this);

@@ -14,9 +14,9 @@ namespace Tangerine.Utils
     public static class Il2CppHelpers
     {
         /// <summary>
-        /// Alternative implementation of <see cref="HumanBase.SetUniqueMotion(ref AnimatorOverrideController, string, HumanBase.OutAction{Il2CppStringArray, Il2CppStringArray})"/>
+        /// Alternative implementation of <see cref="CharacterControlBase.GetUniqueMotion(out Il2CppStringArray, out Il2CppStringArray)"/> for CharacterController
         /// </summary>
-        public static void HumanBaseSetUniqueMotion(OrangeCharacter pEntity, string[] originalAnims, string[] newAnims)
+        public static void UpdateUniqueMotion(OrangeCharacter pEntity, string[] originalAnims, string[] newAnims)
         {
             AnimatorOverrideController animtorOverrideController = pEntity.Animator._animator.runtimeAnimatorController.Cast<AnimatorOverrideController>();
             string bundle = "model/animation/character/" + pEntity.CharacterData.s_MODEL;
@@ -26,7 +26,30 @@ namespace Tangerine.Utils
 
             for (int i = 0; i < originalAnims.Length; i++)
             {
-                animtorOverrideController.Internal_SetClipByName(originalAnims[i], MonoBehaviourSingleton<AssetsBundleManager>.Instance.GetAssstSync<AnimationClip>(bundle, newAnims[i]));
+                animtorOverrideController.Internal_SetClipByName(originalAnims[i], AssetsBundleManager.Instance.GetAssstSync<AnimationClip>(bundle, newAnims[i]));
+            }
+
+            pEntity.Animator._animator.runtimeAnimatorController = animtorOverrideController;
+        }
+
+        /// <summary>
+        /// Alternative implementation of <see cref="CharacterControlBase.GetCharacterDependAnimationsBlendTree()"/> for CharacterController
+        /// </summary>
+        private static void AddCharacterDependAnimationsBlendTree(OrangeCharacter pEntity, string[][] newAnims)
+        {
+            AnimatorOverrideController animtorOverrideController = pEntity.Animator._animator.runtimeAnimatorController.Cast<AnimatorOverrideController>();
+            string bundle = "model/animation/character/" + pEntity.CharacterData.s_MODEL;
+
+            int num = 0;
+            for (int m = 0; m < newAnims.Length; m++)
+            {
+                for (int n = 0; n < 3; n++)
+                {
+                    string name = "bskillclip" + num;
+                    AnimationClip assstSync3 = AssetsBundleManager.Instance.GetAssstSync<AnimationClip>(bundle, newAnims[m][n]);
+                    animtorOverrideController.Internal_SetClipByName(name, assstSync3);
+                    num++;
+                }
             }
 
             pEntity.Animator._animator.runtimeAnimatorController = animtorOverrideController;

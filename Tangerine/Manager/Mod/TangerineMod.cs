@@ -38,6 +38,9 @@ namespace Tangerine.Manager.Mod
         /// <inheritdoc cref="TangerineConst"/>
         public TangerineConst Const { get; }
 
+        /// <inheritdoc cref="TangerineDelayedPlugin"/>
+        public TangerineDelayedPlugin DelayedPlugin { get; }
+
         internal TangerineMod(ModInfo modInfo)
         {
             Info = modInfo;
@@ -48,6 +51,7 @@ namespace Tangerine.Manager.Mod
             TextDataManager = new TangerineTextDataManager(Id);
             Loader = new TangerineLoader(Id);
             Const = new TangerineConst(Id);
+            DelayedPlugin = new TangerineDelayedPlugin(Id);
         }
 
         /// <summary>
