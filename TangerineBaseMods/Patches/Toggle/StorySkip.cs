@@ -92,7 +92,6 @@ public class StorySkip
             {
                 // move "Execute" button over a little bit
                 var btnPlayRect = component.transform.GetComponentInChildren<RectTransform>(true);
-                Plugin.Log.LogInfo($"execute pos = {btnPlayRect.anchoredPosition}");
                 btnPlayRect.anchoredPosition = new Vector2((float)415.6, (float)-328.7);
 
                 // enable skip dive button and move it into position

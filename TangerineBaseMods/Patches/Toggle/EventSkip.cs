@@ -160,6 +160,9 @@ public class EventSkip
 
     internal static void EnableSweepButton(EventStageMain __instance)
     {
+        var btnSweepRect = __instance.m_btnSweep.gameObject.GetComponentInChildren<RectTransform>(true);
+        btnSweepRect.anchoredPosition = new Vector2(-250, 38);
+
         if (__instance.m_currentSelectedTab == EventStageMain.TabType.TIMELIMITED)
             __instance.m_btnSweep.gameObject.SetActive(true);
         else if (__instance.m_currentSelectedTab == EventStageMain.TabType.BOSSRUSH)
