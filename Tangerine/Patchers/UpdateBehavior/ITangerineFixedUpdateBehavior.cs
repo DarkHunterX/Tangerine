@@ -16,7 +16,7 @@ namespace Tangerine.Patchers.UpdateBehavior
         /// <summary>
         /// Pointer to the <see cref="Il2CppObjectBase"/> that implements <see cref="FixedUpdateFunc"/>
         /// </summary>
-        IntPtr UpdatePointer { get; }
+        IntPtr LogicPointer { get; }
 
         /// <summary>
         /// Mirror method for <see cref="IManagedFixedUpdateBehavior.FixedUpdateFunc"/>

@@ -19,9 +19,9 @@ namespace Tangerine.Patchers.UpdateBehavior
         #region Update
         private static IManagedUpdateBehavior GetOrAddUpdate(ITangerineUpdateBehavior p_update)
         {
-            if (!_updateDict.TryGetValue(p_update.UpdatePointer, out var logic))
+            if (!_updateDict.TryGetValue(p_update.LogicPointer, out var logic))
             {
-                logic = new(p_update.UpdatePointer);
+                logic = new(p_update.LogicPointer);
             }
             MonoBehaviourSingleton<UpdateManager>.Instance.AddUpdate(logic);
 
@@ -39,7 +39,7 @@ namespace Tangerine.Patchers.UpdateBehavior
         }
 
         /// <summary>
-        /// Calls <see cref="GameLogicUpdateManager.CheckUpdateContain(ILogicUpdate)"/>
+        /// Calls <see cref="UpdateManager.CheckUpdateContain&lt;IManagedUpdateBehaviorr&gt;(IManagedUpdateBehaviorr)"/>
         /// </summary>
         /// <inheritdoc cref="AddUpdate(ITangerineUpdateBehavior)"/>
         /// <returns>The result of the method call</returns>
@@ -49,22 +49,22 @@ namespace Tangerine.Patchers.UpdateBehavior
         }
 
         /// <summary>
-        /// Calls <see cref="GameLogicUpdateManager.RemoveUpdate(ILogicUpdate)"/>
+        /// Calls <see cref="UpdateManager.RemoveUpdate&lt;IManagedUpdateBehaviorr&gt;(IManagedUpdateBehaviorr)"/>
         /// </summary>
         /// <inheritdoc cref="AddUpdate(ITangerineUpdateBehavior)"/>
         public static void RemoveUpdate(ITangerineUpdateBehavior p_update)
         {
             MonoBehaviourSingleton<UpdateManager>.Instance.RemoveUpdate(GetOrAddUpdate(p_update));
-            _updateDict.Remove(p_update.UpdatePointer);
+            _updateDict.Remove(p_update.LogicPointer);
         }
         #endregion
 
         #region FixedUpdate
         private static IManagedFixedUpdateBehavior GetOrAddFixedUpdate(ITangerineFixedUpdateBehavior p_update)
         {
-            if (!_fixedUpdateDict.TryGetValue(p_update.UpdatePointer, out var logic))
+            if (!_fixedUpdateDict.TryGetValue(p_update.LogicPointer, out var logic))
             {
-                logic = new(p_update.UpdatePointer);
+                logic = new(p_update.LogicPointer);
             }
             MonoBehaviourSingleton<UpdateManager>.Instance.AddUpdate(logic);
 
@@ -98,16 +98,16 @@ namespace Tangerine.Patchers.UpdateBehavior
         public static void RemoveUpdate(ITangerineFixedUpdateBehavior p_update)
         {
             MonoBehaviourSingleton<UpdateManager>.Instance.RemoveUpdate(GetOrAddFixedUpdate(p_update));
-            _fixedUpdateDict.Remove(p_update.UpdatePointer);
+            _fixedUpdateDict.Remove(p_update.LogicPointer);
         }
         #endregion
 
         #region LateUpdate
         private static IManagedLateUpdateBehavior GetOrAddLateUpdate(ITangerineLateUpdateBehavior p_update)
         {
-            if (!_lateUpdateDict.TryGetValue(p_update.UpdatePointer, out var logic))
+            if (!_lateUpdateDict.TryGetValue(p_update.LogicPointer, out var logic))
             {
-                logic = new(p_update.UpdatePointer);
+                logic = new(p_update.LogicPointer);
             }
             MonoBehaviourSingleton<UpdateManager>.Instance.AddUpdate(logic);
 
@@ -141,7 +141,7 @@ namespace Tangerine.Patchers.UpdateBehavior
         public static void RemoveUpdate(ITangerineLateUpdateBehavior p_update)
         {
             MonoBehaviourSingleton<UpdateManager>.Instance.RemoveUpdate(GetOrAddLateUpdate(p_update));
-            _lateUpdateDict.Remove(p_update.UpdatePointer);
+            _lateUpdateDict.Remove(p_update.LogicPointer);
         }
         #endregion
     }
