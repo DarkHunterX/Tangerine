@@ -1,19 +1,30 @@
 using HarmonyLib;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Tangerine.Manager.Mod;
-using System.Text.Json;
-using System.Text.Json.Nodes;
+using Tangerine.Utils;
 using TangerineBaseMods.Config;
-using System.Linq;
 
 namespace TangerineBaseMods;
 
 public class CharacterIntroViewer
 {
+    internal static void InitializeHarmony(Harmony harmony)
+    {
+        harmony.PatchAll(typeof(CharacterIntroViewer));
+        Plugin.RemoveObsoleteMod_IntroViewer();
+        SetConfigDelegates();
+    }
+
+    private static void SetConfigDelegates()
+    {
+        Configuration.CharacterIntroViewer.SettingChanged += (sender, args) => UpdateIntroViewerBtnVisibility();
+    }
+
     private static bool isViewing = false;
+    private static Button viewBtn;
     private static CharacterInfoUI ui;
     private static Image backgroundImg;
     private static Vector3 modelAnchorPosition;
@@ -39,25 +50,38 @@ public class CharacterIntroViewer
         "Bg_GreenScreen",
     };
 
-    internal static void InitializeHarmony(TangerineMod tangerine, Harmony harmony, JsonNode node)
+    private static void UpdateIntroViewerBtnVisibility()
     {
-        if (node["CharacterIntroViewer"]["enabled"].Deserialize<bool>())
+        if (Configuration.CharacterIntroViewer.Value)
         {
-            harmony.PatchAll(typeof(CharacterIntroViewer));
-            Plugin.RemoveObsoleteMod_IntroViewer();
+            if (viewBtn != null)
+                viewBtn.gameObject.SetActive(true);
+            else
+                CreateViewButton();
+        }
+        else
+        {
+            if (viewBtn != null)
+                viewBtn.gameObject.SetActive(false);
+
+            if (isViewing)
+                OnCloseShowCase();
         }
     }
 
-    [HarmonyPostfix, HarmonyPatch(typeof(CharacterInfoBasic), nameof(CharacterInfoBasic.Setup), new[] { typeof(CharacterInfo) })]
-    private static void fw_CharaInfo_Setup(CharacterInfoBasic __instance)
+    private static void CreateViewButton()
     {
-        var mainTrans = __instance.btnDeploy.GetComponentInParent<Transform>().GetParent();
+        var basicUI = UIManager.Instance.GetUI<CharacterInfoBasic>("UI_CharacterInfo_Basic");
+        if (basicUI == null)
+            return;
+
+        var mainTrans = basicUI.btnDeploy.GetComponentInParent<Transform>().GetParent();
         Transform[] componentsInChildren = mainTrans.transform.GetComponentsInChildren<Transform>(true);
         foreach (var component in componentsInChildren)
         {
             if (component.name == "Btn2DSwitch")
             {
-                var temp = CopyTransform(component.gameObject);
+                var temp = UIHelpers.CopyGameObject(component.gameObject, component.transform.GetSiblingIndex() - 1);
                 temp.name = "btnShowCase";
                 temp.transform.position = new Vector3(temp.transform.position.x - 10.0f, temp.transform.position.y, temp.transform.position.z);
 
@@ -66,11 +90,19 @@ public class CharacterIntroViewer
                 text.LocalizationKey = "FUNCTION_VIEW_DEBUT";
                 text.text = LocalizationManager.Instance.GetStr("FUNCTION_VIEW_DEBUT");
 
-                var btn = temp.transform.GetComponent<Button>();
-                btn.onClick = new Button.ButtonClickedEvent();
-                btn.onClick.AddListener(new Action(OnClickShowCase));
+                viewBtn = temp.transform.GetComponent<Button>();
+                viewBtn.onClick = new Button.ButtonClickedEvent();
+                viewBtn.onClick.AddListener(new Action(OnClickShowCase));
+                break;
             }
         }
+    }
+
+    [HarmonyPostfix, HarmonyPatch(typeof(CharacterInfoBasic), nameof(CharacterInfoBasic.Setup), new[] { typeof(CharacterInfo) })]
+    private static void fw_CharaInfo_Setup(CharacterInfoBasic __instance)
+    {
+        if (Configuration.CharacterIntroViewer.Value)
+            CreateViewButton();
     }
 
     [HarmonyPrefix, HarmonyPatch(typeof(OrangeUIBase), nameof(OrangeUIBase.DoEscapeEvent))]
@@ -225,17 +257,5 @@ public class CharacterIntroViewer
                 tfMainUI.GetChild(i).gameObject.SetActive(true);
         }
         AudioManager.Instance.PlaySystemSE(SystemSE.CRI_SYSTEMSE_SYS_WINDOW_CL);
-    }
-
-
-    private static GameObject CopyTransform(GameObject source, int childPosition = -1)
-    {
-        var NewObj = GameObject.Instantiate(source);
-        NewObj.transform.SetParent(source.transform.parent);
-        if (childPosition != -1) NewObj.transform.SetSiblingIndex(childPosition);
-        NewObj.transform.position = source.transform.position;
-        NewObj.transform.rotation = source.transform.rotation;
-        NewObj.transform.localScale = source.transform.localScale;
-        return NewObj;
     }
 }

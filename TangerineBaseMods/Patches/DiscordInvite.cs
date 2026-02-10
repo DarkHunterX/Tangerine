@@ -2,6 +2,7 @@ using HarmonyLib;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using Tangerine.Utils;
 
 namespace TangerineBaseMods.Patches;
 
@@ -26,30 +27,18 @@ internal static class DiscordInvite
         {     
             if (component.name == "BtnLanguage")
             {
-                var temp = CopyTransform(component.gameObject);
+                var temp = UIHelpers.CopyGameObject(component.gameObject);
                 temp.name = "btnDiscord";
                 temp.transform.position = new Vector3(temp.transform.position.x, temp.transform.position.y - 10.0f, temp.transform.position.z);
 
                 var text = temp.transform.GetChild(0).GetComponent<OrangeText>();
-                text.IsLocalizationText = true;
-                text.LocalizationKey = "FUNCTION_DISCORD";
-                text.text = LocalizationManager.Instance.GetStr("FUNCTION_DISCORD");
+                text.IsLocalizationText = false;
+                text.text = "Discord";
 
                 var btn = temp.transform.GetComponent<Button>();
                 btn.onClick = new Button.ButtonClickedEvent();
                 btn.onClick.AddListener(new Action(OnClickBtnDiscordInvite));
             }
         }
-    }
-
-    private static GameObject CopyTransform(GameObject source, int childPosition = -1)
-    {
-        var NewObj = GameObject.Instantiate(source);
-        NewObj.transform.SetParent(source.transform.parent);
-        if (childPosition != -1) NewObj.transform.SetSiblingIndex(childPosition);
-        NewObj.transform.position = source.transform.position;
-        NewObj.transform.rotation = source.transform.rotation;
-        NewObj.transform.localScale = source.transform.localScale;
-        return NewObj;
     }
 }

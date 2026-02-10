@@ -41,6 +41,9 @@ namespace Tangerine.Manager.Mod
         /// <inheritdoc cref="TangerineDelayedPlugin"/>
         public TangerineDelayedPlugin DelayedPlugin { get; }
 
+        /// <inheritdoc cref="TangerineUI"/>
+        public TangerineUI UI { get; }
+
         internal TangerineMod(ModInfo modInfo)
         {
             Info = modInfo;
@@ -52,6 +55,7 @@ namespace Tangerine.Manager.Mod
             Loader = new TangerineLoader(Id);
             Const = new TangerineConst(Id);
             DelayedPlugin = new TangerineDelayedPlugin(Id);
+            UI = new TangerineUI(Id);
         }
 
         /// <summary>

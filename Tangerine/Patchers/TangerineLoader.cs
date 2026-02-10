@@ -1,12 +1,14 @@
+using BepInEx.Unity.IL2CPP.Utils.Collections;
 using Fasterflect;
 using HarmonyLib;
 using System;
-using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using Tangerine.Manager;
 using Tangerine.Patchers.Native;
 using Tangerine.Utils;
+using UnityEngine;
 
 namespace Tangerine.Patchers
 {
@@ -251,17 +253,17 @@ namespace Tangerine.Patchers
                 {
                     // Store original for restoring later
                     _originalAssetBundleIds[id.name] = orgId;
-                    LogMessage.LogWarning($"Updating AssetbundleId: [{id.hash}] {id.name}", LogMessage.AssetBundle);
+                    LogMessage.LogWarning($"Updating AssetbundleId: [{id.hash}] {id.name}", ManagerConfig.DebugLogAssetbundle.Value);
                 }
                 else
                 {
-                    LogMessage.LogWarning($"Adding AssetbundleId: [{id.hash}] {id.name}", LogMessage.AssetBundle);
+                    LogMessage.LogWarning($"Adding AssetbundleId: [{id.hash}] {id.name}", ManagerConfig.DebugLogAssetbundle.Value);
                 }
 
                 __instance.dictBundleID[id.name] = id;
             }
 
-            LogMessage.LogWarning($"Unpatching {nameof(AssetsBundleManager)} postfix", LogMessage.AssetBundle);
+            LogMessage.LogWarning($"Unpatching {nameof(AssetsBundleManager)} postfix", ManagerConfig.DebugLogAssetbundle.Value);
             _harmony.Unpatch(__originalMethod, MethodBase.GetCurrentMethod() as MethodInfo);
             _assetsBundleManagerUnpatched = true;
         }
@@ -274,7 +276,7 @@ namespace Tangerine.Patchers
             {
                 // Update file path
                 __result = filePath;
-                LogMessage.LogWarning($"Replaced path for file: ({__result})", LogMessage.AssetBundle);
+                LogMessage.LogWarning($"Replaced path for file: ({__result})", ManagerConfig.DebugLogAssetbundle.Value);
             }
         }
 
@@ -291,6 +293,7 @@ namespace Tangerine.Patchers
             return true;
         }
 
+        /* obsolete dependency patching method
         [HarmonyPrefix, HarmonyPatch(typeof(AssetsBundleManager), nameof(AssetsBundleManager.OnStartLoadSingleAsset))]
         private static void GetBundleDependencies_Postfix(AssetsBundleManager __instance, string bundleName, AssetKeepMode keepMode)
         {
@@ -301,6 +304,52 @@ namespace Tangerine.Patchers
                 if (dependencies.Count > 0)
                     LogMessage.LogWarning($"Loaded {dependencies.Count} dependencies for bundle \"{bundleName}\"", LogMessage.AssetBundle);
             }
+        }*/
+
+        [HarmonyPrefix, HarmonyPatch(typeof(AssetsBundleManager), nameof(AssetsBundleManager.OnStartLoadSingleAsset))]
+        private static bool GetBundleDependencies_Postfix(AssetsBundleManager __instance, ref Il2CppSystem.Collections.IEnumerator __result, string bundleName, AssetKeepMode keepMode)
+        {
+            if (AssetBundleDepends.Base.TryGetValue(bundleName, out var dependencies))
+            {
+                var NeedLoaded = false;
+                foreach (var bun in dependencies)
+                {
+                    // Check if all the dependencies are loaded. Mainly used just to trigger the load
+                    if (!__instance.dictBundleInfo.TryGetValue(bun, out AssetbundleInfo assetbundleInfo))
+                    {
+                        NeedLoaded = true;
+                        break;
+                    }
+                }
+                if (NeedLoaded)
+                {
+                    __result = LoadAllDependenciesByBundleName(bundleName, keepMode).WrapToIl2Cpp();
+                    return false;
+                }
+                else
+                    return true;
+            }
+            return true;
+        }
+
+        private static IEnumerator LoadAllDependenciesByBundleName(string bundleName, AssetKeepMode keepMode = AssetKeepMode.KEEP_IN_SCENE)
+        {
+            var subAssets = AssetsBundleManager.Instance.manifest.GetDirectDependencies(bundleName);
+            AssetBundleDepends.Base.TryGetValue(bundleName, out var dependencies);
+
+            // Combine all the dependencies together and load all of them at once
+            foreach (var assets in subAssets)
+            {
+                if (!dependencies.Contains(assets))
+                    dependencies.Add(assets);
+            }
+            foreach (var bun in dependencies)
+            {
+                if (!AssetsBundleManager.Instance.dictBundleInfo.TryGetValue(bun, out AssetbundleInfo assetbundleInfo))
+                    yield return AssetsBundleManager.Instance.OnStartLoadSingleAsset(bun, keepMode); // Load all the dependencies
+            }
+            yield return AssetsBundleManager.Instance.OnStartLoadSingleAsset(bundleName, keepMode); // This will re-load the main bundle with all the dependences loaded
+            yield return CoroutineDefine._waitForEndOfFrame; // Exit the Coroutine and block the previous load from continue (since we just re-load it)
         }
     }
 }

@@ -6,17 +6,17 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using Tangerine.Manager.Mod;
+using Tangerine.Utils;
+using TangerineBaseMods.Config;
 
 namespace TangerineBaseMods;
 
 public class BorderExAddon
 {
-    internal static void InitializeHarmony(TangerineMod tangerine, Harmony harmony, JsonNode node)
+    internal static void InitializeHarmony(TangerineMod tangerine, Harmony harmony)
     {
-        if (node["BorderExAddon"]["enabled"].Deserialize<bool>())
+        if (Configuration.BorderExAddon.Value)
         {
             harmony.PatchAll(typeof(BorderExAddon));
             Plugin.RemoveObsoleteMod_SSBorder();
@@ -192,23 +192,12 @@ public class BorderExAddon
         }
     }
 
-    static GameObject CopyTransform(GameObject source, int childPosition = -1)
-    {
-        GameObject NewObj = GameObject.Instantiate(source);
-        NewObj.transform.SetParent(source.transform.parent);
-        if (childPosition != -1) NewObj.transform.SetSiblingIndex(childPosition);
-        NewObj.transform.position = source.transform.position;
-        NewObj.transform.rotation = source.transform.rotation;
-        NewObj.transform.localScale = source.transform.localScale;
-        return NewObj;
-    }
-
     static Image CloneFrameBackGroundObject(CardBase __instance, int index, GameObject obj, Sprite sprite, string name = "")
     {
         if (obj == null)
             return new Image();
 
-        GameObject frame = CopyTransform(obj, index);
+        GameObject frame = UIHelpers.CopyGameObject(obj, index);
         frame.name = obj.name;
         frame.GetComponent<Image>().sprite = sprite;
         if (name != "") frame.GetComponent<Image>().name = name;

@@ -2,6 +2,7 @@
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using Tangerine.Manager;
 using Tangerine.Utils;
 
 namespace Tangerine.Patchers
@@ -20,15 +21,15 @@ namespace Tangerine.Patchers
         {
             if (s_acb != null && s_acb != string.Empty && !AudioManager.Instance.orangePool.ContainsKey(s_acb))
             {
-                LogMessage.LogWarning($"ACB is not loaded: {s_acb}", LogMessage.CriwareAudio);
+                LogMessage.LogWarning($"ACB is not loaded: {s_acb}", ManagerConfig.DebugLogCriwareAudio.Value);
                 if (!_acbIsLoading.ContainsKey(s_acb))
                 {
-                    LogMessage.LogInfo($"Preloading ACB: {s_acb}", LogMessage.CriwareAudio);
+                    LogMessage.LogInfo($"Preloading ACB: {s_acb}", ManagerConfig.DebugLogCriwareAudio.Value);
                     
                     _acbIsLoading[s_acb] = true;
                     AudioManager.Instance.PreloadAtomSource(s_acb, (Callback)new Action(() =>
                     {
-                        LogMessage.LogInfo($"Preloading finished for ACB: {s_acb}", LogMessage.CriwareAudio);
+                        LogMessage.LogInfo($"Preloading finished for ACB: {s_acb}", ManagerConfig.DebugLogCriwareAudio.Value);
 
                         lock (_acbIsLoading)
                         {
@@ -37,7 +38,7 @@ namespace Tangerine.Patchers
                     }));
                 }
 
-                LogMessage.LogInfo($"Waiting for ACB {s_acb} to be loaded...", LogMessage.CriwareAudio);
+                LogMessage.LogInfo($"Waiting for ACB {s_acb} to be loaded...", ManagerConfig.DebugLogCriwareAudio.Value);
 
                 // TODO: lock?
                 while (_acbIsLoading[s_acb])
@@ -45,7 +46,7 @@ namespace Tangerine.Patchers
                     // Wait
                 }
 
-                LogMessage.LogMsg($"Finished waiting for ACB {s_acb}", LogMessage.CriwareAudio);
+                LogMessage.LogMsg($"Finished waiting for ACB {s_acb}", ManagerConfig.DebugLogCriwareAudio.Value);
                 _acbIsLoading.Remove(s_acb);
             }
         }

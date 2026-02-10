@@ -2,9 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
+    <PlatformTarget>x64</PlatformTarget>
     <AssemblyName>TangerineBaseMods</AssemblyName>
     <Product>TangerineBaseMods</Product>
-    <Version>2.0.4</Version>
+    <Version>3.0.0-b1</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <RestoreAdditionalProjectSources>
@@ -35,6 +36,14 @@
     <!-- Tangerine -->
     <Reference Include="Tangerine">
       <HintPath>$(mmxd_game_path)\BepInEx\plugins\Tangerine\Tangerine.dll</HintPath>
+    </Reference>
+
+    <!-- BepInExConfigManager -->
+    <Reference Include="BepInExConfigManager">
+      <HintPath>$(mmxd_game_path)\BepInEx\plugins\BepInExConfigManager\BepInExConfigManager.Il2Cpp.CoreCLR.dll</HintPath>
+    </Reference>
+    <Reference Include="UniverseLib">
+      <HintPath>$(mmxd_game_path)\BepInEx\plugins\BepInExConfigManager\UniverseLib.IL2CPP.Interop.dll</HintPath>
     </Reference>
 
     <!-- Game assemblies -->

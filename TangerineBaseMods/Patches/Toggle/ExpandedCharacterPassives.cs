@@ -3,21 +3,18 @@ using CallbackDefs;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using Tangerine.Manager.Mod;
+using TangerineBaseMods.Config;
 
 namespace TangerineBaseMods;
 
 public class CharacterPassives
 {
-    internal static void InitializeHarmony(TangerineMod tangerine, Harmony harmony, JsonNode node)
+    internal static void InitializeHarmony(TangerineMod tangerine, Harmony harmony)
     {
         
-        if (node["CharacterPassives"]["enabled"].Deserialize<bool>())
-        {
+        if (Configuration.ExpandedCharacterPassives.Value)
             harmony.PatchAll(typeof(CharacterPassives));
-        }
         else
         {
             tangerine.Loader.RemoveAssetBundleId("ui/ui_characterinfo_skill");

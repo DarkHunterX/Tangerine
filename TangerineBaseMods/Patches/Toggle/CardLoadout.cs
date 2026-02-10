@@ -1,20 +1,16 @@
 using HarmonyLib;
 using Il2CppSystem;
 using CallbackDefs;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using Tangerine.Manager.Mod;
+using TangerineBaseMods.Config;
 
 namespace TangerineBaseMods;
 
 public class CardLoadout
 {
-    internal static void InitializeHarmony(TangerineMod tangerine, Harmony harmony, JsonNode node)
+    internal static void InitializeHarmony(Harmony harmony)
     {
-        if (node["CardLoadout"]["enabled"].Deserialize<bool>())
-        {
+        if (Configuration.CardLoadout.Value)
             harmony.PatchAll(typeof(CardLoadout));
-        }
     }
 
     [HarmonyPrefix, HarmonyPatch(typeof(CardDeployGoCheck), nameof(CardDeployGoCheck.OnClickDeployBtn))]

@@ -1,22 +1,19 @@
-﻿using Fasterflect;
-using HarmonyLib;
+﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+using Tangerine.Manager;
+using Tangerine.Utils;
 
 namespace Tangerine.Patchers
 {
     /// <summary>
-    /// TODO
+    /// Contains methods for delayed code patching for code that can't be patched at game bootup
     /// </summary>
     public class TangerineDelayedPlugin
     {
-        private static Harmony _harmony;
         private readonly string _modGuid;
-        private const string delayedGUID = $"{Plugin.GUID}_DelayedPlugin";
 
-        internal static readonly List<Type> hookList = new();
+        internal static readonly Dictionary<Harmony, List<Type>> hookDict = new();
         private static bool isPatched = false;
 
         internal TangerineDelayedPlugin(string modGuid)
@@ -26,16 +23,37 @@ namespace Tangerine.Patchers
 
         internal static void InitializeHarmony(Harmony harmony)
         {
-            _harmony = new Harmony(delayedGUID);
-            _harmony.PatchAll(typeof(TangerineDelayedPlugin));
+            harmony.PatchAll(typeof(TangerineDelayedPlugin));
         }
 
         /// <summary>
-        /// TODO
+        /// Register a Harmony instance and a class containing Harmony patches for delayed patching
         /// </summary>
-        public void AddPatch(Type patchClass)
+        public void AddPatchClass(Harmony harmony, Type patchClass)
         {
-            hookList.Add(patchClass);
+            LogMessage.LogWarning($"Registering delayed patch class: {patchClass.FullName}", ManagerConfig.DebugLogPluginDll.Value);
+
+            if (hookDict.TryGetValue(harmony, out List<Type> pClass))
+                pClass.Add(patchClass);
+            else
+                hookDict.Add(harmony, new List<Type> { patchClass });
+        }
+
+        /// <summary>
+        /// Unregister a single patch class linked to a Harmony instance
+        /// </summary>
+        public void RemovePatchClass(Harmony harmony, Type patchClass)
+        {
+            if (hookDict.TryGetValue(harmony, out List<Type> pClass))
+                pClass.Remove(patchClass);
+        }
+
+        /// <summary>
+        /// Unregister all patch classes linked to a Harmony instance
+        /// </summary>
+        public void RemoveAllPatchClass(Harmony harmony)
+        {
+            hookDict.Remove(harmony);
         }
 
         [HarmonyPostfix, HarmonyPatch(typeof(GoCheckUI), nameof(GoCheckUI.OnGoBattle))]
@@ -43,9 +61,8 @@ namespace Tangerine.Patchers
         {
             if (isPatched)
             {
-                Plugin.Log.LogError($"unpatching delayed plugins");
-                _harmony.UnpatchSelf();
-
+                foreach (var hook in hookDict)
+                    hook.Key.UnpatchSelf();
                 isPatched = false;
             }
         }
@@ -55,10 +72,11 @@ namespace Tangerine.Patchers
         {
             if (!isPatched)
             {
-                Plugin.Log.LogError($"patching delayed plugins");
-                foreach (var patchClass in hookList)
-                    _harmony.PatchAll(patchClass);
-
+                foreach (var hook in hookDict)
+                {
+                    foreach (var patchClass in hook.Value)
+                        hook.Key.PatchAll(patchClass);
+                }
                 isPatched = true;
             }
         }

@@ -36,7 +36,7 @@ namespace Tangerine.Utils
             defaultResolver.AddSearchDirectory(Plugin.Location);
             defaultResolver.AddSearchDirectory(BepInEx.Paths.ManagedPath);
             defaultResolver.AddSearchDirectory(BepInEx.Paths.BepInExAssemblyDirectory);
-            LogMessage.LogInfo($"Loading plugins from {path}", LogMessage.PluginDLL);
+            LogMessage.LogInfo($"Loading plugins from {path}", ManagerConfig.DebugLogPluginDll.Value);
 
             using var dll = AssemblyDefinition.ReadAssembly(path, new ReaderParameters { AssemblyResolver = defaultResolver });
             dll.Name.Name = $"{dll.Name.Name}-{DateTime.Now.Ticks}";
@@ -60,7 +60,7 @@ namespace Tangerine.Utils
 
                             IL2CPPChainloader.Instance.Plugins[metadata.GUID] = pluginInfo;
 
-                            LogMessage.LogInfo($"Loading {metadata.GUID}", LogMessage.PluginDLL);
+                            LogMessage.LogInfo($"Loading {metadata.GUID}", ManagerConfig.DebugLogPluginDll.Value);
 
                             // TODO: async
                             try

@@ -21,7 +21,7 @@ namespace Tangerine.Manager
                 if (!isSprite)
                 {
                     Add(key, texture);
-                    LogMessage.LogWarning($"Texture \"{key}\" added to cache", LogMessage.TextureCache);
+                    LogMessage.LogWarning($"Texture \"{key}\" added to cache", ManagerConfig.DebugLogTextureCache.Value);
                 }
                 else
                 {
@@ -30,7 +30,7 @@ namespace Tangerine.Manager
                     var sprite = Sprite_Create(texture, rect, vect, 100f, 0, SpriteMeshType.Tight, Vector4.zero, false);
                     Add(key, sprite);
                 }
-                LogMessage.LogWarning($"Sprite \"{key}\" added to cache", LogMessage.TextureCache);
+                LogMessage.LogWarning($"Sprite \"{key}\" added to cache", ManagerConfig.DebugLogTextureCache.Value);
             }
             else
             {

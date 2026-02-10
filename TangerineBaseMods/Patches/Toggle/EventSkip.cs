@@ -3,7 +3,6 @@ using HarmonyLib;
 using Il2CppSystem;
 using UnityEngine;
 using UnityEngine.UI;
-using Tangerine.Manager.Mod;
 using TangerineBaseMods.Config;
 
 namespace TangerineBaseMods;
@@ -15,7 +14,7 @@ public class EventSkip
     private static EventStageMain _instance;
     private static bool isEventStageMain = false;
 
-    internal static void InitializeHarmony(TangerineMod tangerine, Harmony harmony)
+    internal static void InitializeHarmony(Harmony harmony)
     {
         harmony.PatchAll(typeof(EventSkip));
         Plugin.RemoveObsoleteMod_RestoredFunctions();

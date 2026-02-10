@@ -40,7 +40,7 @@ namespace Tangerine.Patchers
             }
             else if (!ClassInjector.IsTypeRegisteredInIl2Cpp(controllerType))
             {
-                LogMessage.LogWarning($"Registering character controller: {controllerType.FullName}", LogMessage.PluginDLL);
+                LogMessage.LogWarning($"Registering character controller: {controllerType.FullName}", ManagerConfig.DebugLogPluginDll.Value);
 
                 interfaces ??= Array.Empty<Type>();
                 if (typeof(ITangerineLogicUpdate).IsAssignableFrom(controllerType)
@@ -92,7 +92,7 @@ namespace Tangerine.Patchers
             if (CharacterDict.Base.TryGetValue((int)character, out var type))
             {
                 __result = Il2CppType.From(type);
-                LogMessage.LogWarning($"Loading character controller {__result.Name}", LogMessage.PluginDLL);
+                LogMessage.LogWarning($"Loading character controller {__result.Name}", ManagerConfig.DebugLogPluginDll.Value);
                 return false;
             }
 

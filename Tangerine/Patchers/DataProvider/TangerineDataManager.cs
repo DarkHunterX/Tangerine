@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Tangerine.Manager;
 using Tangerine.Utils;
 
 namespace Tangerine.Patchers.DataProvider
@@ -112,7 +113,7 @@ namespace Tangerine.Patchers.DataProvider
 
                 if (Provider.PatchDictExists(tableName))
                 {
-                    Utils.LogMessage.LogWarning($"{tableName} instance changed! Reapplying patches...", Utils.LogMessage.JsonData);
+                    Utils.LogMessage.LogWarning($"{tableName} instance changed! Reapplying patches...", ManagerConfig.DebugLogJsonData.Value);
                     Provider.ResetPatch(tableName, Array.Empty<int>());
                 }
             }

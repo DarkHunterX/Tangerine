@@ -1,22 +1,15 @@
 ﻿using HarmonyLib;
 using System;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using OrangeConsoleService;
+using TangerineBaseMods.Config;
 
 namespace TangerineBaseMods.Patches;
 internal class SaveValidation
 {
-    private static bool dnaErase = false;
-
-    internal static void InitializeHarmony(Harmony harmony, JsonNode node)
+    internal static void InitializeHarmony(Harmony harmony)
     {
-        if (node["SaveValidation"]["enabled"].Deserialize<bool>())
-        {
-            if (node["DNA"]["enabled"].Deserialize<bool>()) { CharacterInfo.dnaEnabled = true; }
-            if (node["SaveValidation"]["erase disabled DNA"].Deserialize<bool>()) { dnaErase = false; }
+        if (Configuration.SaveValidation.Value)
             harmony.PatchAll(typeof(SaveValidation));
-        }
     }
 
     private static void ClearModDicts(bool clearDNA = true)
@@ -164,7 +157,7 @@ internal class SaveValidation
                 ui.SetupYesNO(LocalizationManager.Instance.GetStr("COMMON_TIP"), LocalizationManager.Instance.GetStr("DELETE_REMOVED_MODS"), LocalizationManager.Instance.GetStr("COMMON_YES"), LocalizationManager.Instance.GetStr("COMMON_NO"), new Action(() =>
                 {
                     // on click yes
-                    if (!dnaErase && CharacterInfo.HasRemovedDNA())
+                    if (!Configuration.EraseDisabledDNA.Value && CharacterInfo.HasRemovedDNA())
                     {
                         CharacterInfo.RestoreDnaData();
                         __instance.SaveTo((SaveIndex)saveIdx, cb);
@@ -190,7 +183,7 @@ internal class SaveValidation
         }
         else if (CharacterInfo.HasRemovedDNA())
         {
-            if (!dnaErase)
+            if (!Configuration.EraseDisabledDNA.Value)
             {
                 CharacterInfo.RestoreDnaData();
                 __instance.SaveTo((SaveIndex)saveIdx, cb);

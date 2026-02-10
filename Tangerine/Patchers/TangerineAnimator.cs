@@ -1,17 +1,20 @@
-using System;
-using System.Reflection;
-using System.Collections.Generic;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using DragonBones;
+using enums;
 using HarmonyLib;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
 using Tangerine.Manager;
 using Tangerine.Utils;
+using UnityEngine;
 
 namespace Tangerine.Patchers
 {
     /// <summary>
     /// Contains methods for adding and updating character debut animation easter egg triggers
     /// </summary>
-    public class TangerineDebutEgg
+    public class TangerineAnimator
     {
         internal static readonly Dictionary<int, EggInfo> _dictDebutEgg = new();
         internal static readonly ModDictionary<int, EggInfo> DebutEgg = new();
@@ -24,20 +27,20 @@ namespace Tangerine.Patchers
             public string[] AnimClips;
         }
 
-        static TangerineDebutEgg()
+        static TangerineAnimator()
         {
             DebutEgg.BaseChangedEvent += ApplyDebutEggPatch;
             DebutEgg.BaseResetEvent += ResetDebutEggPatch;
         }
 
-        internal TangerineDebutEgg(string modGuid)
+        internal TangerineAnimator(string modGuid)
         {
             _modGuid = modGuid;
         }
 
         internal static void InitializeHarmony(Harmony harmony)
         {
-            harmony.PatchAll(typeof(TangerineDebutEgg));
+            harmony.PatchAll(typeof(TangerineAnimator));
         }
 
         /// <summary>
@@ -98,37 +101,43 @@ namespace Tangerine.Patchers
                 _dictDebutEgg[pair.Key] = pair.Value;
         }
 
-        [HarmonyPrefix, HarmonyPatch(typeof(RenderTextureObj), nameof(RenderTextureObj.UpdateBonusClip))]
-        private static bool UpdateBonusClip(RenderTextureObj __instance, ref Il2CppStringArray clips)
+        [HarmonyPrefix, HarmonyPatch(typeof(OrangeAnimatonHelper), nameof(OrangeAnimatonHelper.AnimatorShort))]
+        private static bool AnimatorShort(string animator, ref string __result)
         {
-            int playCount;
-            int characterModel = __instance.characterId;
-
-            if (!__instance.dictEXclipsCount.TryGetValue(characterModel, out playCount))
-                playCount = 0;
-
-            if (_dictDebutEgg.TryGetValue(characterModel, out EggInfo eggInfo))
-            {
-                LogMessage.LogWarning($"Debut animation play count for character model {characterModel} = {playCount}", ManagerConfig.DebugLogDebutEasterEgg.Value);
-                if (playCount >= eggInfo.Trigger)
-                {
-                    clips = eggInfo.AnimClips;
-                    LogMessage.LogWarning($"Playing debut animation easter egg for character model {characterModel}", ManagerConfig.DebugLogDebutEasterEgg.Value);
-                }
-            }
-            else
-            {
-                // First Armor X
-                if (characterModel == 23 && playCount >= 5)
-                    clips = new string[] { "ch023_ui_debut_egg_start", "ch023_ui_debut_loop" };
-                
-                // Third Armor X
-                else if (characterModel == 43 && playCount >= 3)
-                    clips = new string[] { "ch043_ui_debut_egg_start", "ch043_ui_debut_egg_loop" };
-            }
+            __result = GetAnimatorType(animator);
 
             // do not run original code
             return false;
+        }
+
+        [HarmonyPrefix, HarmonyPatch(typeof(HumanBase), nameof(HumanBase.GetWeaponMotionBundlePath))]
+        private static bool GetWeaponMotionBundlePath(string animatorType, WeaponType weaponType, ref string __result)
+        {
+            var weaponTypeName = HumanBase.GetWeaponTypeName(weaponType);
+            var animatorTypeName = GetAnimatorType(animatorType);
+            __result = $"model/animation/{weaponTypeName}/{animatorType}";
+
+            // do not run original code
+            return false;
+        }
+
+        private static string GetAnimatorType(string animator)
+        {
+            var animatorTypeList = new Dictionary<string, string>()
+            {
+                { "male", "m" },
+                { "female", "f" },
+                { "classic", "c" },
+            };
+
+            foreach (var animatorType in animatorTypeList)
+            {
+                if (animator.Contains(animatorType.Key) ? true : false)
+                    return animatorType.Value;
+            }
+
+            Plugin.Log.LogError($"Unknown Animator Type: {animator}");
+            return "m";
         }
     }
 }

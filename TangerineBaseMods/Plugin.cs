@@ -1,14 +1,17 @@
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
+using ConfigManager.UI.InteractiveValues;
 using HarmonyLib;
 using System;
 using System.IO;
-using System.Text.Json.Nodes;
 using Tangerine.Manager.Mod;
+using TangerineBaseMods.Config;
+using TangerineBaseMods.Config.InteractiveValues;
+using TangerineBaseMods.Config.TypeConverters;
+using TangerineBaseMods.Config.Types;
 using TangerineBaseMods.Patches;
 using TangerineBaseMods.Patches.Toggle;
-using TangerineBaseMods.Config;
 
 namespace TangerineBaseMods;
 
@@ -25,7 +28,6 @@ public class Plugin : TangerinePlugin
 
     internal static readonly string ModsDir = Path.Combine(Paths.BepInExRootPath, "mods");
     internal static readonly string PluginModDir = Path.Combine(ModsDir, MyPluginInfo.PLUGIN_GUID);
-    private const string JsonFile = "Settings.json";
 
     internal static readonly string _oldPluginDir = Path.Combine(Paths.BepInExRootPath, "plugins");
 
@@ -38,40 +40,39 @@ public class Plugin : TangerinePlugin
         Plugin.Config = base.Config;
         Log.LogInfo($"Tangerine plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
 
-        try
-        {
-            Configuration.Initialize();
+        Configuration.Initialize();
+        _harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
 
-            _harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
-            var node = JsonNode.Parse(File.ReadAllText(Path.Combine(PluginModDir, JsonFile)));
+        // plugins
+        CharacterPassives.InitializeHarmony(_tangerine, _harmony);
+        CardLoadout.InitializeHarmony(_harmony);
+        DNA.InitializeHarmony(_tangerine, _harmony);
+        EventSkip.InitializeHarmony(_harmony);
+        StorySkip.InitializeHarmony(_harmony);
+        SaveValidation.InitializeHarmony(_harmony);
 
-            // plugins
-            CharacterPassives.InitializeHarmony(_tangerine, _harmony, node);
-            CardLoadout.InitializeHarmony(_tangerine, _harmony, node);
-            DNA.InitializeHarmony(_tangerine, _harmony, node);
-            EventSkip.InitializeHarmony(_tangerine, _harmony);
-            StorySkip.InitializeHarmony(_tangerine, _harmony);
-            SaveValidation.InitializeHarmony(_harmony, node);
+        // Aoki plugins
+        BorderExAddon.InitializeHarmony(_tangerine, _harmony);
+        CharacterIntroViewer.InitializeHarmony(_harmony);
+        SkinVoiceAddon.InitializeHarmony(_harmony);
 
-            // Aoki plugins
-            BorderExAddon.InitializeHarmony(_tangerine, _harmony, node);
-            CharacterIntroViewer.InitializeHarmony(_tangerine, _harmony, node);
+        // Django plugins
+        DualGunFix.InitializeHarmony(_tangerine, _harmony);
 
-            // Django plugins
-            DualGunFix.InitializeHarmony(_tangerine, _harmony, node);
+        // hard patches
+        CheatEngineFix.InitializeHarmony(_harmony);
+        ChipIdRangeFix.InitializeHarmony(_harmony);
+        DiscordInvite.InitializeHarmony(_harmony);
+        ExpandedShopTabs.InitializeHarmony(_harmony);
+        GoUIMenuFixes.InitializeHarmony(_harmony);
+        IntroSkip.InitializeHarmony(_harmony);
+        LoadingImageTable.InitializeHarmony(_harmony);
+        ResetWeapon.InitializeHarmony(_harmony);
+        ResetCharacter.InitializeHarmony(_tangerine, _harmony);
 
-            // hard patches
-            CheatEngineFix.InitializeHarmony(_harmony);
-            ChipIdRangeFix.InitializeHarmony(_harmony);
-            ExpandedShopTabs.InitializeHarmony(_harmony);
-            DiscordInvite.InitializeHarmony(_harmony);
-            GoUIMenuFixes.InitializeHarmony(_harmony);
-            IntroSkip.InitializeHarmony(_harmony);
-        }
-        catch (Exception e)
-        {
-            Log.LogError($"Failed to read {JsonFile} for mod \"{PluginModDir}\": {e}");
-        }
+        // add support for custom config types
+        TomlTypeConverter.AddConverter(typeof(LoadingGacha), new LoadingGachaTypeConverter());
+        InteractiveValue.RegisterIValueType<InteractiveLoadingGacha>();
     }
 
     public override bool Unload()
@@ -102,6 +103,12 @@ public class Plugin : TangerinePlugin
         RemoveDir(Path.Combine(ModsDir, "CharacterIntroViewAddon"), "Removed obsolete mod folder \"Character Intro Viewer Add-on\"");
     }
 
+    internal static void RemoveObsoleteMod_SkinVoiceAddon()
+    {
+        // remove old version of skin voice addon
+        RemoveDir(Path.Combine(ModsDir, "SkinVoiceAddon"), "Removed obsolete mod folder \"Skin Voice Addon\"");
+    }
+
     internal static void RemoveObsoleteMod_DualGunFix()
     {
         // remove old version of dual gun fix
@@ -122,10 +129,18 @@ public class Plugin : TangerinePlugin
 
     internal static void RemoveDir(string folderPath, string msg)
     {
-        if (Directory.Exists(folderPath))
+        try
         {
-            Directory.Delete(folderPath, true);
-            Log.LogError(msg);
+            if (Directory.Exists(folderPath))
+            {
+                Directory.Delete(folderPath, true);
+                Log.LogError(msg);
+            }
+        }
+        catch (Exception ex)
+        {
+            var modFolderName = new DirectoryInfo(folderPath).Name;
+            Log.LogError($"Failed to remove obsolete mod \"{modFolderName}\" - {ex}");
         }
     }
 }

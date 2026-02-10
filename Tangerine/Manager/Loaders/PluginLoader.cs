@@ -20,7 +20,7 @@ namespace Tangerine.Manager.Loaders
                     if (plugin != null)
                     {
                         plugin.Load(mod);
-                        LogMessage.LogWarning($"Loaded plugin {Path.GetFileName(file)} for mod \"{modPath}\"", LogMessage.PluginDLL);
+                        LogMessage.LogWarning($"Loaded plugin {Path.GetFileName(file)} for mod \"{modPath}\"", ManagerConfig.DebugLogPluginDll.Value);
                         return true;
                     }
 

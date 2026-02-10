@@ -168,10 +168,10 @@ namespace Tangerine.Patchers
                     {
                         // Store original for restoring later
                         _originalChargeFxDatas.Add(fx.sCharacterStr, orgFx);
-                        LogMessage.LogWarning($"Updating ChargeFx: {fx.sCharacterStr}", LogMessage.ChargeFx);
+                        LogMessage.LogWarning($"Updating ChargeFx: {fx.sCharacterStr}", ManagerConfig.DebugLogChargeFx.Value);
                     }
                     else
-                        LogMessage.LogWarning($"Adding ChargeFx: {fx.sCharacterStr}", LogMessage.ChargeFx);
+                        LogMessage.LogWarning($"Adding ChargeFx: {fx.sCharacterStr}", ManagerConfig.DebugLogChargeFx.Value);
 
                     dictChargeDatas[fx.sCharacterStr] = fx;
                 }

@@ -135,7 +135,7 @@ namespace Tangerine.Patchers.DataProvider
         private static void ConstInitPostfix()
         {
             _isConstInit = true;
-            Utils.LogMessage.LogInfo($"OrangeConst.ConstInit finished: patching parameters", Utils.LogMessage.JsonConst);
+            Utils.LogMessage.LogInfo($"OrangeConst.ConstInit finished: patching parameters", ManagerConfig.DebugLogJsonParam.Value);
             ResetPatch(Array.Empty<string>());
         }
     }

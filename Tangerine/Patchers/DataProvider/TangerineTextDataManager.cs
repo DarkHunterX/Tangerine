@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Tangerine.Manager;
 using Tangerine.Utils;
 
 namespace Tangerine.Patchers.DataProvider
@@ -93,7 +94,7 @@ namespace Tangerine.Patchers.DataProvider
                 // Invalidated, start patching
                 if (Provider.PatchDictExists(tableName))
                 {
-                    LogMessage.LogWarning($"{tableName} instance changed! Reapplying patches...", LogMessage.JsonText);
+                    LogMessage.LogWarning($"{tableName} instance changed! Reapplying patches...", ManagerConfig.DebugLogJsonText.Value);
                     Provider.ResetPatch(tableName, Array.Empty<string>());
                 }
             }

@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using OrangeConsoleService;
+using TangerineBaseMods.Config;
 
 namespace TangerineBaseMods.Patches;
 
 internal static class CharacterInfo
 {
-    internal static bool dnaEnabled = false;
-
     private static List<NetCharacterInfo> character_mods = new();
     private static List<NetCharacterSkinInfo> characterSkin_mods = new();
     private static List<NetCharacterSkillInfo> characterSkill_mods = new();
@@ -143,7 +142,7 @@ internal static class CharacterInfo
 
     internal static void RemoveDnaData()
     {
-        if (!dnaEnabled)
+        if (!Configuration.ExpandedDNA.Value)
         {
             CharacterDnaToDict();
             foreach (var rDNA in characterRDNA_disabled)
@@ -169,7 +168,7 @@ internal static class CharacterInfo
 
     internal static void RestoreDnaData()
     {
-        if (!dnaEnabled)
+        if (!Configuration.ExpandedDNA.Value)
         {
             foreach (var rDNA in characterRDNA_disabled)
                 CharacterService.Instance._listCharacterDNA.Add(rDNA);
@@ -286,7 +285,7 @@ internal static class CharacterInfo
             }
             else if (dna.SlotID >= 4 && dna.SlotID <= 8)
             {
-                if (!dnaEnabled)
+                if (!Configuration.ExpandedDNA.Value)
                     characterRDNA_disabled.Add(dna);
                 else if (!OrangeDataManager.Instance.CHARACTER_TABLE_DICT.TryGetValue(dna.CharacterID, out CHARACTER_TABLE character_TABLE))
                     characterRDNA_mods.Add(dna);
@@ -307,7 +306,7 @@ internal static class CharacterInfo
         var characterDNALink = new Dictionary<int, int>();
         foreach (var dnaLink in CharacterService.Instance._dicCharacterDNALink)
         {
-            if (!dnaEnabled)
+            if (!Configuration.ExpandedDNA.Value)
                 characterIDNA_disabled.Add(dnaLink.Value);
             else
             {

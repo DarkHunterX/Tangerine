@@ -35,7 +35,7 @@ namespace Tangerine.Utils
         /// <summary>
         /// Alternative implementation of <see cref="CharacterControlBase.GetCharacterDependAnimationsBlendTree()"/> for CharacterController
         /// </summary>
-        private static void AddCharacterDependAnimationsBlendTree(OrangeCharacter pEntity, string[][] newAnims)
+        public static void AddCharacterDependAnimationsBlendTree(OrangeCharacter pEntity, string[][] newAnims)
         {
             AnimatorOverrideController animtorOverrideController = pEntity.Animator._animator.runtimeAnimatorController.Cast<AnimatorOverrideController>();
             string bundle = "model/animation/character/" + pEntity.CharacterData.s_MODEL;

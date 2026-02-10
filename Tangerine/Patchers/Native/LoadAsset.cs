@@ -47,19 +47,19 @@ namespace Tangerine.Patchers.Native
                 switch (loadedAsset)
                 {
                     case GameObject gameObj:
-                        LogMessage.LogWarning($"Invoking GameObject callback: {gameObj.name}", LogMessage.AssetRemap);
+                        LogMessage.LogWarning($"Invoking GameObject callback: {gameObj.name}", ManagerConfig.DebugLogAssetRemap.Value);
                         new AssetsBundleManager.OnAsyncLoadAssetComplete<GameObject>(p_cb).Invoke(gameObj);
                         break;
                     case Sprite sprite:
-                        LogMessage.LogWarning($"Invoking Sprite callback: {sprite.name}", LogMessage.AssetRemap);
+                        LogMessage.LogWarning($"Invoking Sprite callback: {sprite.name}", ManagerConfig.DebugLogAssetRemap.Value);
                         new AssetsBundleManager.OnAsyncLoadAssetComplete<Sprite>(p_cb).Invoke(sprite);
                         break;
                     case Texture2D texture:
-                        LogMessage.LogWarning($"Invoking Texture2D callback: {texture.name}", LogMessage.AssetRemap);
+                        LogMessage.LogWarning($"Invoking Texture2D callback: {texture.name}", ManagerConfig.DebugLogAssetRemap.Value);
                         new AssetsBundleManager.OnAsyncLoadAssetComplete<Texture2D>(p_cb).Invoke(texture);
                         break;
                     case UnityEngine.Object obj:
-                        LogMessage.LogWarning($"Invoking Object callback: {obj.name}", LogMessage.AssetRemap);
+                        LogMessage.LogWarning($"Invoking Object callback: {obj.name}", ManagerConfig.DebugLogAssetRemap.Value);
                         new AssetsBundleManager.OnAsyncLoadAssetComplete<UnityEngine.Object>(p_cb).Invoke(obj);
                         break;
                     default:
@@ -109,7 +109,7 @@ namespace Tangerine.Patchers.Native
 
             if (newBundleName != string.Empty)
             {
-                LogMessage.LogWarning($"Remapping asset from [{bundleName}]{assetName} to [{newBundleName}]{newAssetName}", LogMessage.AssetRemap);
+                LogMessage.LogWarning($"Remapping asset from [{bundleName}]{assetName} to [{newBundleName}]{newAssetName}", ManagerConfig.DebugLogAssetRemap.Value);
 
                 bundleNamePtr = IL2CPP.il2cpp_string_new(newBundleName);
                 assetNamePtr = IL2CPP.il2cpp_string_new(newAssetName);
@@ -117,7 +117,7 @@ namespace Tangerine.Patchers.Native
                 // GetAssstSync only
                 if (isSync && !AssetsBundleManager.Instance.dictBundleInfo.ContainsKey(newBundleName))
                 {
-                    LogMessage.LogWarning($"Loading missing bundle [{newBundleName}]", LogMessage.AssetRemap);
+                    LogMessage.LogWarning($"Loading missing bundle [{newBundleName}]", ManagerConfig.DebugLogAssetRemap.Value);
 
                     if (AssetsBundleManager.Instance.dictBundleID.TryGetValue(newBundleName, out var bundleId))
                     {
@@ -129,7 +129,7 @@ namespace Tangerine.Patchers.Native
             else if (newAssetName != string.Empty)
             {
                 // Empty bundle name means the asset should be loaded from disk
-                LogMessage.LogWarning($"Loading asset from disk: \"{newAssetName}\"", LogMessage.AssetRemap);
+                LogMessage.LogWarning($"Loading asset from disk: \"{newAssetName}\"", ManagerConfig.DebugLogAssetRemap.Value);
 
                 if (!File.Exists(newAssetName))
                 {
@@ -162,7 +162,7 @@ namespace Tangerine.Patchers.Native
                             return true;
                         }
 
-                        LogMessage.LogWarning($"Successfully loaded texture: \"{newAssetName}\"", LogMessage.AssetRemap);
+                        LogMessage.LogWarning($"Successfully loaded texture: \"{newAssetName}\"", ManagerConfig.DebugLogAssetRemap.Value);
 
                         return false;
                     default:
@@ -179,7 +179,7 @@ namespace Tangerine.Patchers.Native
             {
                 if (!AssetsBundleManager.Instance.dictBundleInfo.ContainsKey(dependency))
                 {
-                    LogMessage.LogWarning($"Loading dependency [{dependency}] for bundle [{id.name}]!", LogMessage.AssetRemap);
+                    LogMessage.LogWarning($"Loading dependency [{dependency}] for bundle [{id.name}]!", ManagerConfig.DebugLogAssetRemap.Value);
                     if (AssetsBundleManager.Instance.dictBundleID.TryGetValue(dependency, out var dependencyId))
                     {
                         LoadAssetBundle(dependencyId);

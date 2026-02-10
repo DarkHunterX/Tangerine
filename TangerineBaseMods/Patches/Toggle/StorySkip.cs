@@ -1,7 +1,6 @@
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
-using Tangerine.Manager.Mod;
 using TangerineBaseMods.Config;
 
 namespace TangerineBaseMods;
@@ -13,7 +12,7 @@ public class StorySkip
     private static UI_ChallengePopup _instance;
     private static bool ischallengePopupUI = false;
 
-    internal static void InitializeHarmony(TangerineMod tangerine, Harmony harmony)
+    internal static void InitializeHarmony(Harmony harmony)
     {
         harmony.PatchAll(typeof(StorySkip));
         Plugin.RemoveObsoleteMod_RestoredFunctions();

@@ -1,17 +1,16 @@
 using HarmonyLib;
 using Il2CppSystem;
 using CallbackDefs;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using Tangerine.Manager.Mod;
+using TangerineBaseMods.Config;
 
 namespace TangerineBaseMods;
 
 public class DNA
 {
-    internal static void InitializeHarmony(TangerineMod tangerine, Harmony harmony, JsonNode node)
+    internal static void InitializeHarmony(TangerineMod tangerine, Harmony harmony)
     {
-        if (node["DNA"]["enabled"].Deserialize<bool>())
+        if (Configuration.ExpandedDNA.Value)
         {
             harmony.PatchAll(typeof(DNA));
             Plugin.RemoveObsoleteMod_RestoredFunctions();
