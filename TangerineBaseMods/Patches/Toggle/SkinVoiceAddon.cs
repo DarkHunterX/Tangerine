@@ -24,6 +24,7 @@ public class SkinVoiceAddon
     }
 
     #region Variable
+    private const string JsonFile = "SKIN_VOICE_TABLE.json";
     private static List<SKIN_VOICE_TABLE> _SKIN_VOICE_TABLE_DICT = new();
     private static List<cSkinVoiceData> _SKIN_VOICE_ORIGIN_DICT = new();
     private static cSkinVoiceData CurVoice;
@@ -209,45 +210,56 @@ public class SkinVoiceAddon
         string[] modMainMenu = Directory.GetDirectories(Plugin.ModsDir);
         foreach (string mod in modMainMenu)
         {
-            string tableDir = Path.Combine(mod, "Tables");
-            tableDir = Path.Combine(tableDir, "SKIN_VOICE_TABLE.json");
-            if (!File.Exists(tableDir))
-                continue;
-
-            var Tablenode = JsonNode.Parse(File.ReadAllText(tableDir));
-            var list = Tablenode["SKIN_VOICE_TABLE"]?.AsArray();
-
-            //Getting Entry from tables
-            foreach (var node in list)
+            try
             {
-                var table = new SKIN_VOICE_TABLE();
-                try
-                {
-                    int skinID = node["n_SKINID"].Deserialize<int>();
-                    SKIN_VOICE_TABLE tableFind = _SKIN_VOICE_TABLE_DICT.FirstOrDefault(x => x.n_SKINID == skinID);
-                    if (_SKIN_VOICE_TABLE_DICT.Any(x => x.n_SKINID == skinID))
-                    {
-                        LogInfoDebug($"Found dupe entry for skin with id {skinID}\nRemoving the previous entry");
-                        _SKIN_VOICE_TABLE_DICT.Remove(tableFind);
-                    }
+                string tableDir = Path.Combine(mod, "Tables", JsonFile);
+                if (!File.Exists(tableDir))
+                    continue;
 
-                    table.s_NAME = node["s_NAME"].Deserialize<string>();
-                    table.n_CHARAID = node["n_CHARAID"].Deserialize<int>();
-                    table.n_SKINID = skinID;
-                    table.s_VOICE = node["s_VOICE"].Deserialize<string>();
-                    table.s_SE_CHARA = node["s_SE_CHARA"].Deserialize<string>();
-                    table.s_SE_SKILL = node["s_SE_SKILL"].Deserialize<string>();
-                    table.s_VOICE_VICTORY = node["s_VOICE_VICTORY"].Deserialize<string>();
-                    table.s_VOICE_SKILL1 = node["s_VOICE_SKILL1"].Deserialize<string>();
-                    table.s_VOICE_SKILL2 = node["s_VOICE_SKILL2"].Deserialize<string>();
-                }
-                catch (Exception)
+                var Tablenode = JsonNode.Parse(File.ReadAllText(tableDir));
+                var list = Tablenode["SKIN_VOICE_TABLE"]?.AsArray();
+
+                if (list == null)
                 {
-                    Plugin.Log.LogError($"There is an error when loading data. Entry's Name ({table.s_NAME})");
+                    Plugin.Log.LogError($"Failed to read {JsonFile} for mod \"{mod}\"");
                     continue;
                 }
 
-                _SKIN_VOICE_TABLE_DICT.Add(table);
+                //Getting Entry from tables
+                foreach (var node in list)
+                {
+                    var table = new SKIN_VOICE_TABLE();
+                    try
+                    {
+                        int skinID = node["n_SKINID"].Deserialize<int>();
+                        SKIN_VOICE_TABLE tableFind = _SKIN_VOICE_TABLE_DICT.FirstOrDefault(x => x.n_SKINID == skinID);
+                        if (_SKIN_VOICE_TABLE_DICT.Any(x => x.n_SKINID == skinID))
+                        {
+                            LogInfoDebug($"Found dupe entry for skin with id {skinID}\nRemoving the previous entry");
+                            _SKIN_VOICE_TABLE_DICT.Remove(tableFind);
+                        }
+
+                        table.s_NAME = node["s_NAME"].Deserialize<string>();
+                        table.n_CHARAID = node["n_CHARAID"].Deserialize<int>();
+                        table.n_SKINID = skinID;
+                        table.s_VOICE = node["s_VOICE"].Deserialize<string>();
+                        table.s_SE_CHARA = node["s_SE_CHARA"].Deserialize<string>();
+                        table.s_SE_SKILL = node["s_SE_SKILL"].Deserialize<string>();
+                        table.s_VOICE_VICTORY = node["s_VOICE_VICTORY"].Deserialize<string>();
+                        table.s_VOICE_SKILL1 = node["s_VOICE_SKILL1"].Deserialize<string>();
+                        table.s_VOICE_SKILL2 = node["s_VOICE_SKILL2"].Deserialize<string>();
+                    }
+                    catch (Exception)
+                    {
+                        Plugin.Log.LogError($"There is an error when loading data. Entry's Name ({table.s_NAME})");
+                        continue;
+                    }
+                    _SKIN_VOICE_TABLE_DICT.Add(table);
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogError($"Failed to read {JsonFile} for mod \"{mod}\": {e}");
             }
         }
     }
