@@ -29,12 +29,15 @@ public class EventSkip
 
     internal static void UpdateSweepBtnVisibility()
     {
-        if (isEventStageMain && _instance.m_currentMode == EventStageMain.ModeType.NONE || _instance.m_currentMode == EventStageMain.ModeType.NORMAL)
+        if (isEventStageMain)
         {
-            if (Configuration.EventSkip.Value)
-                EnableSweepButton(_instance);
-            else
-                DisableSweepButton(_instance);
+            if (_instance.m_currentMode == EventStageMain.ModeType.NONE || _instance.m_currentMode == EventStageMain.ModeType.NORMAL)
+            {
+                if (Configuration.EventSkip.Value)
+                    EnableSweepButton(_instance);
+                else
+                    DisableSweepButton(_instance);
+            }
         }
     }
 
@@ -57,9 +60,6 @@ public class EventSkip
     [HarmonyPostfix, HarmonyPatch(typeof(EventStageMain), nameof(EventStageMain.EventTabHelper))]
     private static void EventTabHelper_Postfix(EventStageMain __instance)
     {
-        UpdateSweepCount();
-        __instance.m_btnSweep.GetComponentInChildren<Text>().text = string.Format(LocalizationManager.Instance.GetStr("FUNTION_MULTI_SWEEP"), sweepCount);
-        
         if (Configuration.EventSkip.Value)
             EnableSweepButton(__instance);
     }
@@ -168,6 +168,8 @@ public class EventSkip
             __instance.m_btnSweep.gameObject.SetActive(false);
         else
             __instance.m_btnSweep.gameObject.SetActive(true);
+
+        UpdateSweepBtn();
     }
 
     internal static void DisableSweepButton(EventStageMain __instance)
