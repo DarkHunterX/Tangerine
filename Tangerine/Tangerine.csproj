@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>Tangerine</AssemblyName>
     <Product>Tangerine</Product>
-    <Version>3.0.0-b3</Version>
+    <Version>3.0.0-b4</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <RestoreAdditionalProjectSources>

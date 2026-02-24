@@ -29,7 +29,7 @@ public class EventSkip
 
     internal static void UpdateSweepBtnVisibility()
     {
-        if (isEventStageMain)
+        if (isEventStageMain && _instance != null)
         {
             if (_instance.m_currentMode == EventStageMain.ModeType.NONE || _instance.m_currentMode == EventStageMain.ModeType.NORMAL)
             {
@@ -43,11 +43,9 @@ public class EventSkip
 
     internal static void UpdateSweepBtn()
     {
-        if (isEventStageMain)
-        {
-            UpdateSweepCount();
+        UpdateSweepCount();
+        if (isEventStageMain && _instance != null)
             _instance.m_btnSweep.GetComponentInChildren<Text>().text = string.Format(LocalizationManager.Instance.GetStr("FUNTION_MULTI_SWEEP"), sweepCount);
-        }
     }
 
     [HarmonyPrefix, HarmonyPatch(typeof(EventStageMain), nameof(EventStageMain.Setup))]
